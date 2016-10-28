@@ -23,62 +23,55 @@ import static java.util.stream.Collectors.toMap;
  */
 public class LifeExpectancy extends PApplet {
 
-    UnfoldingMap map;
-    Map<String, Float> lifeExpByCountry;
-    List<Feature> countries;
-    List<Marker> countryMarkers;
+    private UnfoldingMap map;
+    private Map<String, Float> lifeExpByCountry;
+    private List<Marker> countryMarkers;
 
     public void setup() {
         size(800, 600, OPENGL);
         map = new UnfoldingMap(this, 50, 50, 700, 500, new GeoMapApp.TopologicalGeoMapProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
 
-        // Load lifeExpectancy data
-        lifeExpByCountry = loadLifeExpectancyFromCSV("LifeExpectancyWorldBankModule3.csv");
+        lifeExpByCountry = loadLifeExpectancyFromCSV();
         println("Loaded " + lifeExpByCountry.size() + " data entries");
 
-
-        // Load country polygons and adds them as markers
-        countries = GeoJSONReader.loadData(this, "countries.geo.json");
+        List<Feature> countries = GeoJSONReader.loadData(this, "countries.geo.json");
         countryMarkers = MapUtils.createSimpleMarkers(countries);
         map.addMarkers(countryMarkers);
 
-        // Country markers are shaded according to life expectancy (only once)
         shadeCountries();
     }
 
     public void draw() {
-        // Draw map tiles and country markers
         map.draw();
     }
 
-    //Helper method to color each country based on life expectancy
-    //Red-orange indicates low (near 40)
-    //Blue indicates high (near 100)
     private void shadeCountries() {
         for (Marker marker : countryMarkers) {
-            // Find data for country of the current marker
-            String countryId = marker.getId();
-            if (lifeExpByCountry.containsKey(countryId)) {
-                float lifeExp = lifeExpByCountry.get(countryId);
-                // Encode value as brightness (values range: 40-90)
-                int colorLevel = (int) map(lifeExp, 40, 90, 10, 255);
+            if (idPresentInCSV(marker)) {
+                int colorLevel = (int) map(getId(marker), 40, 90, 10, 255);
                 marker.setColor(color(255 - colorLevel, 100, colorLevel));
-            } else {
+            } else
                 marker.setColor(color(150, 150, 150));
-            }
         }
     }
 
-    //Helper method to load life expectancy data from file
-    private Map<String, Float> loadLifeExpectancyFromCSV(String fileName) {
-        return stream(loadStrings(fileName))
+    private Float getId(Marker marker) {
+        return lifeExpByCountry.get(marker.getId());
+    }
+
+    private boolean idPresentInCSV(Marker marker) {
+        return lifeExpByCountry.containsKey(marker.getId());
+    }
+
+    private Map<String, Float> loadLifeExpectancyFromCSV() {
+        return stream(loadStrings("LifeExpectancyWorldBankModule3.csv"))
                 .map(row -> row.split(","))
-                .filter(this::getPredicate)
+                .filter(this::filter)
                 .collect(toMap(k -> k[4], v -> parseFloat(v[5])));
     }
 
-    private boolean getPredicate(String[] column) {
+    private boolean filter(String[] column) {
         return column.length == 6 && !column[5].equals("..");
     }
 
