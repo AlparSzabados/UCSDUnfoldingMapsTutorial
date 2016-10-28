@@ -26,6 +26,13 @@ public class EarthquakeCityMap extends PApplet {
 
     private static final float THRESHOLD_MODERATE = 5;
     private static final float THRESHOLD_LIGHT = 4;
+    private final int BLUE = color(0, 0, 255);
+    private final int YELLOW = color(255, 255, 0);
+    private final int RED = color(255, 0, 0);
+    private final static int BLUE_RADIUS = 10;
+    private final int YELLOW_RADIUS = 15;
+    private final int RED_RADIUS = 20;
+
     private UnfoldingMap map;
     private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
@@ -37,27 +44,25 @@ public class EarthquakeCityMap extends PApplet {
         map.zoomToLevel(2);
         MapUtils.createDefaultEventDispatcher(this, map);
 
-        int yellow = color(255, 255, 0), blue = color(0, 0, 255), red = color(255, 0, 0);
-        int blueRadius = 10, yellowRadius = 15, redRadius = 20;
         List<Marker> markers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
                                         .map(eq -> new SimplePointMarker(eq.getLocation(), eq.getProperties()))
-                                        .peek(changeMarkerColorAndRadius(blue, yellow, red, blueRadius, yellowRadius, redRadius))
+                                        .peek(setMarkerColorAndRadius())
                                         .collect(Collectors.toList());
         map.addMarkers(markers);
     }
 
-    private Consumer<SimplePointMarker> changeMarkerColorAndRadius(int blue, int yellow, int red, int blueRadius, int yellowRadius, int redRadius) {
+    private Consumer<SimplePointMarker> setMarkerColorAndRadius() {
         return marker -> {
             float magnitude = getMagnitude(marker);
             if (magnitude < THRESHOLD_LIGHT) {
-                marker.setColor(blue);
-                marker.setRadius(blueRadius);
+                marker.setColor(BLUE);
+                marker.setRadius(BLUE_RADIUS);
             } else if (magnitude < THRESHOLD_MODERATE) {
-                marker.setColor(yellow);
-                marker.setRadius(yellowRadius);
+                marker.setColor(YELLOW);
+                marker.setRadius(YELLOW_RADIUS);
             } else {
-                marker.setColor(red);
-                marker.setRadius(redRadius);
+                marker.setColor(RED);
+                marker.setRadius(RED_RADIUS);
             }
         };
     }
