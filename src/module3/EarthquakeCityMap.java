@@ -9,7 +9,8 @@ import parsing.ParseFeed;
 import processing.core.PApplet;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * EarthquakeCityMap
@@ -46,7 +47,7 @@ public class EarthquakeCityMap extends PApplet {
         List<Marker> markers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
                                         .map(eq -> new SimplePointMarker(eq.getLocation(), eq.getProperties()))
                                         .peek(this::setMarkerColorAndRadius)
-                                        .collect(Collectors.toList());
+                                        .collect(toList());
         map.addMarkers(markers);
     }
 
@@ -64,8 +65,8 @@ public class EarthquakeCityMap extends PApplet {
         }
     }
 
-    private float getMagnitude(Marker magnitude) {
-        return Float.parseFloat(magnitude.getProperty("magnitude").toString());
+    private float getMagnitude(Marker simplePointMarker) {
+        return parseFloat(simplePointMarker.getProperty("magnitude").toString());
     }
 
     public void draw() {
