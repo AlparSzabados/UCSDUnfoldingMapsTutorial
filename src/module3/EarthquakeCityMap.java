@@ -62,7 +62,6 @@ public class EarthquakeCityMap extends PApplet {
             simplePointMarker.setColor(RED);
             simplePointMarker.setRadius(RED_RADIUS);
         }
-        ;
     }
 
     private float getMagnitude(Marker magnitude) {
