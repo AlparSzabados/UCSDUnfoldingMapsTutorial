@@ -1,4 +1,4 @@
-package module4;
+package main.module4;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -10,16 +10,15 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.GeoMapApp;
 import de.fhpotsdam.unfolding.utils.MapUtils;
-import parsing.ParseFeed;
+import main.parsing.ParseFeed;
 import processing.core.PApplet;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import static java.util.function.Function.*;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
-import static java.util.stream.Collectors.toList;
 
 /**
  * EarthquakeCityMap
@@ -54,24 +53,63 @@ public class EarthquakeCityMap extends PApplet {
         countryMarkers = MapUtils.createSimpleMarkers(countries);
 
         List<Feature> cities = GeoJSONReader.loadData(this, cityFile);
-        cityMarkers = cities.stream().map(CityMarker::new).collect(toList());
+        cityMarkers = cities.stream()
+                            .map(CityMarker::new)
+                            .collect(toList());
 
-        quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
-                                .map(f -> isLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f))
-                                .collect(toList());
+        List<PointFeature> quakes = ParseFeed.parseEarthquake(this, earthquakesURL);
+
+        List<PointFeature> quakesWithCountryParameter = quakes.stream()
+                                                              .peek(f -> addCountryParameter(f, countryMarkers)) //TODO EVIL CODE!
+                                                              .collect(toList());
+
+        quakeMarkers = quakesWithCountryParameter.stream()
+                                                 .map(f -> isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f))
+                                                 .collect(toList());
 
         map.addMarkers(quakeMarkers);
         map.addMarkers(cityMarkers);
 
-        printQuakes();
+        printQuakes().forEach((k, v) -> System.out.println(k + " : " + v));
     }
 
-    private void printQuakes() {
+    //adds country parameter to PointFeatures that or located on land
+    private void addCountryParameter(PointFeature earthquake, List<Marker> country) {
+        Location checkLoc = earthquake.getLocation();
+        for (Marker mark : country) {
+            if (mark.getClass() == MultiMarker.class) {
+                for (Marker marker : ((MultiMarker) mark).getMarkers()) {
+                    if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
+                        earthquake.addProperty("country", mark.getProperty("name"));
+                    }
+                }
+            } else if (((AbstractShapeMarker) mark).isInsideByLocation(checkLoc)) {
+                earthquake.addProperty("country", mark.getProperty("name"));
+            }
+        }
+    }
 
+    private boolean isOnLand(PointFeature earthquake) {
+        return earthquake.getProperty("country") != null;
+    }
+
+    private Map<String, Long> printQuakes() {
+        Map<String, Long> quakes = new HashMap<>();
         quakeMarkers.stream()
-                    .map(mk -> mk instanceof LandQuakeMarker ? mk.getProperty("country") : "OCEAN QUAKE")
+                    .map(this::getQuakes)
                     .collect(groupingBy(identity(), counting()))
-                    .forEach((k, v) -> System.out.println(k + " : " + v + " earthquake(s)"));
+                    .forEach(quakes::put);
+
+        return quakes;
+    }
+
+    private String getQuakes(Marker mk) {
+        return isLandMarker(mk) ? mk.getStringProperty("country")
+                                : "OCEAN QUAKE";
+    }
+
+    private boolean isLandMarker(Marker mk) {
+        return mk instanceof LandQuakeMarker;
     }
 
     public void draw() {
@@ -80,10 +118,12 @@ public class EarthquakeCityMap extends PApplet {
         addKey();
     }
 
-    // helper method to draw key in GUI
+    public static void main(String[] args) {
+        PApplet.main("main.module4.EarthquakeCityMap");
+    }
+
     // TODO: Update this method as appropriate
     private void addKey() {
-        // Remember you can use Processing's graphics methods here
         fill(255, 250, 240);
         rect(25, 50, 150, 250);
 
@@ -103,30 +143,5 @@ public class EarthquakeCityMap extends PApplet {
         text("5.0+ Magnitude", 75, 125);
         text("4.0+ Magnitude", 75, 175);
         text("Below 4.0", 75, 225);
-    }
-
-    private boolean isLand(PointFeature earthquake) {
-        return countryMarkers.stream().anyMatch(mk -> isInCountry(earthquake, mk));
-    }
-
-    private boolean isInCountry(PointFeature earthquake, Marker country) {
-        Location checkLoc = earthquake.getLocation();
-
-        if (country.getClass() == MultiMarker.class) {
-            for (Marker marker : ((MultiMarker) country).getMarkers()) {
-                if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
-                    earthquake.addProperty("country", country.getProperty("name"));
-                    return true;
-                }
-            }
-        } else if (((AbstractShapeMarker) country).isInsideByLocation(checkLoc)) {
-            earthquake.addProperty("country", country.getProperty("name"));
-            return true;
-        }
-        return false;
-    }
-
-    public static void main(String[] args) {
-        PApplet.main("module4.EarthquakeCityMap");
     }
 }
