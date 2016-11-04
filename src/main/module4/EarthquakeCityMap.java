@@ -73,7 +73,7 @@ public class EarthquakeCityMap extends PApplet {
         printQuakes().forEach((k, v) -> System.out.println(k + " : " + v));
     }
 
-    //adds country parameter to PointFeatures that or located on land
+    //adds country parameter to PointFeatures located on land
     private void addCountryParameter(PointFeature earthquake, List<Marker> country) {
         Location checkLoc = earthquake.getLocation();
         for (Marker mark : country) {
