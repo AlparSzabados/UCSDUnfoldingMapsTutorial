@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.function.Function.*;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -65,12 +67,10 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private void printQuakes() {
+
         quakeMarkers.stream()
-                    .filter(m -> m instanceof LandQuakeMarker)
-                    .map(m -> m.getProperty("country").toString())
-                    .collect(Collectors.toList())
-                    .stream()
-                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                    .map(mk -> mk instanceof LandQuakeMarker ? mk.getProperty("country") : "OCEAN QUAKE")
+                    .collect(groupingBy(identity(), counting()))
                     .forEach((k, v) -> System.out.println(k + " : " + v + " earthquake(s)"));
     }
 
