@@ -13,7 +13,6 @@ import de.fhpotsdam.unfolding.utils.MapUtils;
 import main.parsing.ParseFeed;
 import processing.core.PApplet;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,13 +93,9 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private Map<String, Long> printQuakes() {
-        Map<String, Long> quakes = new HashMap<>();
-        quakeMarkers.stream()
-                    .map(this::getQuakes)
-                    .collect(groupingBy(identity(), counting()))
-                    .forEach(quakes::put);
-
-        return quakes;
+        return quakeMarkers.stream()
+                           .map(this::getQuakes)
+                           .collect(groupingBy(identity(), counting()));
     }
 
     private String getQuakes(Marker mk) {
@@ -113,35 +108,53 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     public void draw() {
-        background(0);
+        background(150, 150, 150);
         map.draw();
         addKey();
-    }
-
-    public static void main(String[] args) {
-        PApplet.main("main.module4.EarthquakeCityMap");
     }
 
     // TODO: Update this method as appropriate
     private void addKey() {
         fill(255, 250, 240);
-        rect(25, 50, 150, 250);
+        rect(25, 50, 150, 300);
 
         fill(0);
         textAlign(LEFT, CENTER);
         textSize(12);
         text("Earthquake Key", 50, 75);
 
-        fill(color(255, 0, 0));
-        ellipse(50, 125, 15, 15);
-        fill(color(255, 255, 0));
-        ellipse(50, 175, 10, 10);
-        fill(color(0, 0, 255));
-        ellipse(50, 225, 5, 5);
+        fill(color(150, 30, 30));
+        triangle(50, 125 - 5, 50 - 5, 125 + 5, 50 + 5, 125 + 5);
+        fill(255);
+        ellipse(50, 150, 12, 12);
+        rect(44, 170, 12, 12);
 
         fill(0, 0, 0);
-        text("5.0+ Magnitude", 75, 125);
-        text("4.0+ Magnitude", 75, 175);
-        text("Below 4.0", 75, 225);
+        text("City Marker", 75, 125);
+        text("Land Quake", 75, 150);
+        text("Ocean Quake", 75, 175);
+        textAlign(LEFT, CENTER);
+        text("Size ~ Magnitude", 50, 200);
+
+        fill(250, 220, 0);
+        ellipse(50, 230, 12, 12);
+        fill(0, 0, 255);
+        ellipse(50, 250, 12, 12);
+        fill(255, 0, 0);
+        ellipse(50, 270, 12, 12);
+        fill(255);
+        ellipse(50, 290, 12, 12);
+        line(50, 290, 50 + 12, 290 - 12);
+
+        fill(0);
+        text("Shallow", 75, 230);
+        text("Intermediate", 75, 250);
+        text("Deep", 75, 270);
+        text("Pased", 75, 290);
+
+    }
+
+    public static void main(String[] args) {
+        PApplet.main("main.module4.EarthquakeCityMap");
     }
 }
