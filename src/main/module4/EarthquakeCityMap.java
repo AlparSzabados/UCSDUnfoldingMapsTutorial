@@ -1,7 +1,6 @@
 package main.module4;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
-import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
@@ -103,18 +102,18 @@ public class EarthquakeCityMap extends PApplet {
     public void draw() {
         background(150, 150, 150);
         map.draw();
-        addKey();
+        addLegend();
     }
 
-    // TODO: Update this method as appropriate
-    private void addKey() {
+    private void addLegend() {
+        strokeWeight(2);
         fill(255, 250, 240);
         rect(25, 50, 150, 300);
 
         fill(0);
         textAlign(LEFT, CENTER);
         textSize(12);
-        text("Earthquake Key", 50, 75);
+        text("Earthquake Legend", 50, 75);
 
         fill(color(150, 30, 30));
         triangle(50, 125 - 5, 50 - 5, 125 + 5, 50 + 5, 125 + 5);
@@ -137,14 +136,14 @@ public class EarthquakeCityMap extends PApplet {
         ellipse(50, 270, 12, 12);
         fill(255);
         ellipse(50, 290, 12, 12);
-        line(50, 290, 50 + 12, 290 - 12);
+        line(50 - 11, 290 - 11, 50 + 11, 290 + 11);
+        line(50 - 11, 290 + 11, 50 + 11, 290 - 11);
 
         fill(0);
         text("Shallow", 75, 230);
         text("Intermediate", 75, 250);
         text("Deep", 75, 270);
         text("Pased", 75, 290);
-
     }
 
     public static void main(String[] args) {
