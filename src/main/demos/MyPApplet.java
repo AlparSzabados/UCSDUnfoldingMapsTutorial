@@ -3,9 +3,6 @@ package main.demos;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * A class to illustrate some use of the PApplet class
  * Used in module 3 of the UC San Diego MOOC Object Oriented Programming in Java
@@ -51,7 +48,7 @@ public class MyPApplet extends PApplet {
 
         int abc = a * 100 + b * 10 + c;
 
-        return (int) (abc*ratio);
+        return (int) (abc * ratio);
     }
 
     public static void main(String[] args) {
