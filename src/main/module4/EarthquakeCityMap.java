@@ -48,23 +48,16 @@ public class EarthquakeCityMap extends PApplet {
         map = new UnfoldingMap(this, 200, 50, 650, 600, new GeoMapApp.TopologicalGeoMapProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
 
-        List<Feature> countries = GeoJSONReader.loadData(this, countryFile);
-        countryMarkers = MapUtils.createSimpleMarkers(countries);
+        countryMarkers = MapUtils.createSimpleMarkers(GeoJSONReader.loadData(this, countryFile));
 
-        List<Feature> cities = GeoJSONReader.loadData(this, cityFile);
-        cityMarkers = cities.stream()
-                            .map(CityMarker::new)
-                            .collect(toList());
+        cityMarkers = GeoJSONReader.loadData(this, cityFile).stream()
+                                   .map(CityMarker::new)
+                                   .collect(toList());
 
-        List<PointFeature> quakes = ParseFeed.parseEarthquake(this, earthquakesURL);
-
-        List<PointFeature> quakesWithCountryParameter = quakes.stream()
-                                                              .peek(f -> addCountryParameter(f, countryMarkers)) //TODO EVIL CODE!
-                                                              .collect(toList());
-
-        quakeMarkers = quakesWithCountryParameter.stream()
-                                                 .map(f -> isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f))
-                                                 .collect(toList());
+        quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
+                                .peek(f -> addCountryParameter(f, countryMarkers))
+                                .map(f -> isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f))
+                                .collect(toList());
 
         map.addMarkers(quakeMarkers);
         map.addMarkers(cityMarkers);
