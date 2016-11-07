@@ -29,7 +29,7 @@ public class CityMarker extends SimplePointMarker {
         pg.pushStyle();
 
         pg.fill(150, 30, 30);
-        pg.triangle(x, y-TRI_SIZE, x-TRI_SIZE, y+TRI_SIZE, x+TRI_SIZE, y+TRI_SIZE);
+        pg.triangle(x, y - TRI_SIZE, x - TRI_SIZE, y + TRI_SIZE, x + TRI_SIZE, y + TRI_SIZE);
 
         pg.popStyle();
     }
@@ -45,5 +45,4 @@ public class CityMarker extends SimplePointMarker {
     public float getPopulation() {
         return Float.parseFloat(getStringProperty("population"));
     }
-
 }
