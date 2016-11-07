@@ -42,18 +42,18 @@ public abstract class EarthquakeMarker extends SimplePointMarker {
 
         String age = getStringProperty("age");
         if ("Past Hour".equals(age) || "Past Day".equals(age)) {
-
             pg.strokeWeight(2);
             int buffer = 2;
-            pg.line(x - (radius + buffer),
-                    y - (radius + buffer),
-                    x + radius + buffer,
-                    y + radius + buffer);
-            pg.line(x - (radius + buffer),
-                    y + (radius + buffer),
-                    x + radius + buffer,
-                    y - (radius + buffer));
+            float bufferAndRadius = radius + buffer;
 
+            pg.line(x - bufferAndRadius,
+                    y - bufferAndRadius,
+                    x + bufferAndRadius,
+                    y + bufferAndRadius);
+            pg.line(x - bufferAndRadius,
+                    y + bufferAndRadius,
+                    x + bufferAndRadius,
+                    y - bufferAndRadius);
         }
 
         pg.popStyle();

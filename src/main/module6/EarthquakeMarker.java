@@ -83,20 +83,19 @@ public abstract class EarthquakeMarker extends CommonMarker {
 
             pg.strokeWeight(2);
             int buffer = 2;
-            pg.line(x - (radius + buffer),
-                    y - (radius + buffer),
-                    x + radius + buffer,
-                    y + radius + buffer);
-            pg.line(x - (radius + buffer),
-                    y + (radius + buffer),
-                    x + radius + buffer,
-                    y - (radius + buffer));
+            float bufferAndRadius = radius + buffer;
 
+            pg.line(x - bufferAndRadius,
+                    y - bufferAndRadius,
+                    x + bufferAndRadius,
+                    y + bufferAndRadius);
+            pg.line(x - bufferAndRadius,
+                    y + bufferAndRadius,
+                    x + bufferAndRadius,
+                    y - bufferAndRadius);
         }
-
         // reset to previous styling
         pg.popStyle();
-
     }
 
     /**
@@ -120,7 +119,6 @@ public abstract class EarthquakeMarker extends CommonMarker {
         pg.popStyle();
 
     }
-
 
     /**
      * Return the "threat circle" radius, or distance up to
@@ -160,7 +158,7 @@ public abstract class EarthquakeMarker extends CommonMarker {
         return getTitle();
     }
     /*
-	 * getters for earthquake properties
+     * getters for earthquake properties
 	 */
 
     public float getMagnitude() {
