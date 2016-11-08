@@ -3,6 +3,7 @@ package main.module5;
 import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /**
@@ -47,8 +48,15 @@ public class CityMarker extends CommonMarker {
      * Show the title of the city if this marker is selected
      */
     public void showTitle(PGraphics pg, float x, float y) {
-
-        // TODO: Implement this method
+        String title = "City: " + getCity() + ", Country: " + getCountry() + ", Population: " + getPopulation() + " Mill.";
+        pg.pushStyle();
+        pg.fill(255, 255, 255);
+        pg.rectMode(PConstants.CORNER);
+        pg.rect(x + 9, y - 15, Math.max(pg.textWidth(title), 0) + 2, 20);
+        pg.fill(0);
+        pg.textSize(14);
+        pg.text(title, x + 10, y);
+        pg.popStyle();
     }
 
 
