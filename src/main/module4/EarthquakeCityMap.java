@@ -55,13 +55,17 @@ public class EarthquakeCityMap extends PApplet {
 
         quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
                                 .peek(f -> addCountryParameter(f, countryMarkers))
-                                .map(f -> isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f))
+                                .map(f -> createMarker(f))
                                 .collect(toList());
 
         map.addMarkers(quakeMarkers);
         map.addMarkers(cityMarkers);
 
         printQuakes().forEach((k, v) -> System.out.println(k + " : " + v));
+    }
+
+    private EarthquakeMarker createMarker(PointFeature f) {
+        return isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f);
     }
 
     //adds country parameter to PointFeatures located on land
