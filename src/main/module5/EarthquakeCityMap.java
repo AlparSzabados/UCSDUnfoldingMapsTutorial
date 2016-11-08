@@ -8,14 +8,17 @@ import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.AbstractShapeMarker;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
-import de.fhpotsdam.unfolding.providers.Google;
-import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.GeoMapApp;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import main.parsing.ParseFeed;
 import processing.core.PApplet;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import static java.util.function.Function.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * EarthquakeCityMap
@@ -27,103 +30,81 @@ import java.util.List;
  */
 public class EarthquakeCityMap extends PApplet {
 
-    // We will use member variables, instead of local variables, to store the data
-    // that the setup and draw methods will need to access (as well as other methods)
-    // You will use many of these variables, but the only one you should need to add
-    // code to modify is countryQuakes, where you will store the number of earthquakes
-    // per country.
-
-    // You can ignore this.  It's to get rid of eclipse warnings
     private static final long serialVersionUID = 1L;
 
-    // IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-    private static final boolean offline = false;
-
-    /**
-     * This is where to find the local tiles, for working without an Internet connection
-     */
-    public static String mbTilesString = "blankLight-1-3.mbtiles";
-
-    //feed with magnitude 2.5+ Earthquakes
     private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
-    // The files containing city names and info and country names and info
     private String cityFile = "city-data.json";
     private String countryFile = "countries.geo.json";
 
-    // The map
     private UnfoldingMap map;
 
-    // Markers for each city
     private List<Marker> cityMarkers;
-    // Markers for each earthquake
     private List<Marker> quakeMarkers;
-
-    // A List of country markers
     private List<Marker> countryMarkers;
 
-    // NEW IN MODULE 5
     private CommonMarker lastSelected;
     private CommonMarker lastClicked;
 
     public void setup() {
-        // (1) Initializing canvas and map tiles
         size(900, 700, OPENGL);
-        if (offline) {
-            map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
-            earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
-        } else {
-            map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
-            // IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-            //earthquakesURL = "2.5_week.atom";
-        }
+
+        map = new UnfoldingMap(this, 200, 50, 650, 600, new GeoMapApp.TopologicalGeoMapProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
 
+        countryMarkers = MapUtils.createSimpleMarkers(GeoJSONReader.loadData(this, countryFile));
 
-        // (2) Reading in earthquake data and geometric properties
-        //     STEP 1: load country features and markers
-        List<Feature> countries = GeoJSONReader.loadData(this, countryFile);
-        countryMarkers = MapUtils.createSimpleMarkers(countries);
+        cityMarkers = GeoJSONReader.loadData(this, cityFile).stream()
+                                   .map(main.module4.CityMarker::new)
+                                   .collect(toList());
 
-        //     STEP 2: read in city data
-        List<Feature> cities = GeoJSONReader.loadData(this, cityFile);
-        cityMarkers = new ArrayList<Marker>();
-        for (Feature city : cities) {
-            cityMarkers.add(new CityMarker(city));
-        }
+        quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
+                                .peek(f -> addCountryParameter(f, countryMarkers))
+                                .map(f -> createMarker(f))
+                                .collect(toList());
 
-        //     STEP 3: read in earthquake RSS feed
-        List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
-        quakeMarkers = new ArrayList<Marker>();
-
-        for (PointFeature feature : earthquakes) {
-            //check if LandQuake
-            if (isLand(feature)) {
-                quakeMarkers.add(new LandQuakeMarker(feature));
-            }
-            // OceanQuakes
-            else {
-                quakeMarkers.add(new OceanQuakeMarker(feature));
-            }
-        }
-
-        // could be used for debugging
-        printQuakes();
-
-        // (3) Add markers to map
-        //     NOTE: Country markers are not added to the map.  They are used
-        //           for their geometric properties
         map.addMarkers(quakeMarkers);
         map.addMarkers(cityMarkers);
 
-    }  // End setup
+    }
 
+    private EarthquakeMarker createMarker(PointFeature f) {
+        return isOnLand(f) ? new main.module5.LandQuakeMarker(f) : new OceanQuakeMarker(f);
+    }
 
-    public void draw() {
-        background(0);
-        map.draw();
-        addKey();
+    //adds country parameter to PointFeatures located on land
+    private void addCountryParameter(PointFeature earthquake, List<Marker> country) {
+        Location checkLoc = earthquake.getLocation();
+        for (Marker mark : country) {
+            if (mark.getClass() == MultiMarker.class) {
+                for (Marker marker : ((MultiMarker) mark).getMarkers()) {
+                    if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
+                        earthquake.addProperty("country", mark.getProperty("name"));
+                    }
+                }
+            } else if (((AbstractShapeMarker) mark).isInsideByLocation(checkLoc)) {
+                earthquake.addProperty("country", mark.getProperty("name"));
+            }
+        }
+    }
 
+    private boolean isOnLand(PointFeature earthquake) {
+        return earthquake.getProperty("country") != null;
+    }
+
+    private Map<String, Long> printQuakes(List<Marker> markers) {
+        return markers.stream()
+                      .map(this::getQuakes)
+                      .collect(groupingBy(identity(), counting()));
+    }
+
+    private String getQuakes(Marker mk) {
+        return isLandMarker(mk) ? mk.getStringProperty("country")
+                                : "OCEAN QUAKE";
+    }
+
+    private boolean isLandMarker(Marker mk) {
+        return mk instanceof LandQuakeMarker;
     }
 
     /**
@@ -175,9 +156,13 @@ public class EarthquakeCityMap extends PApplet {
         }
     }
 
-    // helper method to draw key in GUI
+    public void draw() {
+        background(0);
+        map.draw();
+        addKey();
+    }
+
     private void addKey() {
-        // Remember you can use Processing's graphics methods here
         fill(255, 250, 240);
 
         int xbase = 25;
