@@ -1,6 +1,7 @@
 package main.module5;
 
 import de.fhpotsdam.unfolding.data.PointFeature;
+import processing.core.PConstants;
 import processing.core.PGraphics;
 
 /**
@@ -100,7 +101,15 @@ public abstract class EarthquakeMarker extends CommonMarker {
      */
     @Override
     public void showTitle(PGraphics pg, float x, float y) {
-        // TODO: Implement this method
+        String title = getTitle() + ", Magnitude: " + getMagnitude() + ", Depth: " + getDepth() + " Km.";
+        pg.pushStyle();
+        pg.fill(255, 255, 255);
+        pg.rectMode(PConstants.CORNER);
+        pg.rect(x + 9, y - 15, Math.max(pg.textWidth(title), 0) + 2, 20);
+        pg.fill(0);
+        pg.textSize(14);
+        pg.text(title, x + 10, y);
+        pg.popStyle();
 
     }
 
