@@ -53,7 +53,7 @@ public class EarthquakeCityMap extends PApplet {
         countryMarkers = MapUtils.createSimpleMarkers(GeoJSONReader.loadData(this, countryFile));
 
         cityMarkers = GeoJSONReader.loadData(this, cityFile).stream()
-                                   .map(main.module4.CityMarker::new)
+                                   .map(CityMarker::new)
                                    .collect(toList());
 
         quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
@@ -122,12 +122,13 @@ public class EarthquakeCityMap extends PApplet {
         selectMarkerIfHover(cityMarkers);
     }
 
-    // If there is a marker under the cursor, and lastSelected is null
-    // set the lastSelected to be the first marker found under the cursor
-    // Make sure you do not select two markers.
-    //
     private void selectMarkerIfHover(List<Marker> markers) {
-        // TODO: Implement this method
+        markers.stream()
+               .filter(marker -> marker.isInside(map, mouseX, mouseY))
+               .forEach(marker -> {
+                   lastSelected = (CommonMarker) marker;
+                   marker.setSelected(true);
+               });
     }
 
     /**
@@ -142,7 +143,6 @@ public class EarthquakeCityMap extends PApplet {
         // Hint: You probably want a helper method or two to keep this code
         // from getting too long/disorganized
     }
-
 
     // loop over and unhide all markers
     private void unhideMarkers() {
