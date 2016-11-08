@@ -1,7 +1,6 @@
 package main.module5;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
-import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
@@ -15,9 +14,8 @@ import processing.core.PApplet;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-import static java.util.function.Function.*;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 /**
@@ -66,6 +64,7 @@ public class EarthquakeCityMap extends PApplet {
         map.addMarkers(quakeMarkers);
         map.addMarkers(cityMarkers);
 
+        printQuakes(quakeMarkers).forEach((k, v) -> System.out.println(k + " : " + v));
     }
 
     private EarthquakeMarker createMarker(PointFeature f) {
@@ -220,82 +219,9 @@ public class EarthquakeCityMap extends PApplet {
         strokeWeight(2);
         line(centerx - 8, centery - 8, centerx + 8, centery + 8);
         line(centerx - 8, centery + 8, centerx + 8, centery - 8);
-
     }
 
-
-    // Checks whether this quake occurred on land.  If it did, it sets the
-    // "country" property of its PointFeature to the country where it occurred
-    // and returns true.  Notice that the helper method addCountry will
-    // set this "country" property already.  Otherwise it returns false.
-    private boolean isLand(PointFeature earthquake) {
-
-        // IMPLEMENT THIS: loop over all countries to check if location is in any of them
-        // If it is, add 1 to the entry in countryQuakes corresponding to this country.
-        for (Marker country : countryMarkers) {
-            if (isInCountry(earthquake, country)) {
-                return true;
-            }
-        }
-
-        // not inside any country
-        return false;
+    public static void main(String[] args) {
+        PApplet.main("main.module5.EarthquakeCityMap");
     }
-
-    // prints countries with number of earthquakes
-    private void printQuakes() {
-        int totalWaterQuakes = quakeMarkers.size();
-        for (Marker country : countryMarkers) {
-            int numQuakes = 0;
-            for (Marker marker : quakeMarkers) {
-                EarthquakeMarker eqMarker = (EarthquakeMarker) marker;
-                if (eqMarker.isOnLand()) {
-                    if (country.getStringProperty("name").equals(eqMarker.getStringProperty("country"))) {
-                        numQuakes++;
-                    }
-                }
-            }
-            if (numQuakes > 0) {
-                totalWaterQuakes -= numQuakes;
-                System.out.println(country.getStringProperty("name") + ": " + numQuakes);
-            }
-        }
-        System.out.println("OCEAN QUAKES: " + totalWaterQuakes);
-    }
-
-
-    // helper method to test whether a given earthquake is in a given country
-    // This will also add the country property to the properties of the earthquake feature if
-    // it's in one of the countries.
-    // You should not have to modify this code
-    private boolean isInCountry(PointFeature earthquake, Marker country) {
-        // getting location of feature
-        Location checkLoc = earthquake.getLocation();
-
-        // some countries represented it as MultiMarker
-        // looping over SimplePolygonMarkers which make them up to use isInsideByLoc
-        if (country.getClass() == MultiMarker.class) {
-
-            // looping over markers making up MultiMarker
-            for (Marker marker : ((MultiMarker) country).getMarkers()) {
-
-                // checking if inside
-                if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
-                    earthquake.addProperty("country", country.getProperty("name"));
-
-                    // return if is inside one
-                    return true;
-                }
-            }
-        }
-
-        // check if inside country represented by SimplePolygonMarker
-        else if (((AbstractShapeMarker) country).isInsideByLocation(checkLoc)) {
-            earthquake.addProperty("country", country.getProperty("name"));
-
-            return true;
-        }
-        return false;
-    }
-
 }
