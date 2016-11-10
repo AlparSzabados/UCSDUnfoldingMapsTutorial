@@ -149,10 +149,7 @@ public class EarthquakeCityMap extends PApplet {
         selectMarkerIfClicked(quakeMarkers);
         selectMarkerIfClicked(cityMarkers);
 
-        if (lastClicked instanceof EarthquakeMarker) {
-            hideCities(quakeMarkers);
-            hideCities(cityMarkers);
-        } else if (lastClicked instanceof CityMarker) {
+        if (lastClicked != null) {
             hideQuakes(quakeMarkers);
             hideQuakes(cityMarkers);
         }
@@ -162,33 +159,24 @@ public class EarthquakeCityMap extends PApplet {
         Location lastClickedLocation = lastClicked.getLocation();
         for (Marker marker : markers) {
             marker.setHidden(true);
-            if (marker instanceof EarthquakeMarker) {
-                EarthquakeMarker mk = ((EarthquakeMarker) marker);
-                if (mk.getDistanceTo(lastClickedLocation) < mk.threatCircle()) {
-                    marker.setHidden(false);
+            if (lastClicked instanceof CityMarker) {
+                if (marker instanceof EarthquakeMarker) {
+                    double earthquakeThreat = ((EarthquakeMarker) marker).threatCircle();
+                    setHidden(marker, lastClickedLocation, earthquakeThreat);
+                }
+            } else {
+                if (marker instanceof CityMarker) {
+                    double earthquakeThreat = ((EarthquakeMarker) lastClicked).threatCircle();
+                    setHidden(marker, lastClickedLocation, earthquakeThreat);
                 }
             }
         }
         lastClicked.setHidden(false);
-        if (lastClicked == null) {
-            unhideMarkers();
-        }
     }
 
-    private void hideCities(List<Marker> markers) {
-        Location lastClickedLocation = lastClicked.getLocation();
-        double lastClickedThreat = ((EarthquakeMarker) lastClicked).threatCircle();
-        for (Marker marker : markers) {
-            marker.setHidden(true);
-            if (marker instanceof CityMarker) {
-                if (marker.getDistanceTo(lastClickedLocation) < lastClickedThreat) {
-                    marker.setHidden(false);
-                }
-            }
-        }
-        lastClicked.setHidden(false);
-        if (lastClicked == null) {
-            unhideMarkers();
+    private void setHidden(Marker marker, Location location, double threatCircle) {
+        if (marker.getDistanceTo(location) < threatCircle) {
+            marker.setHidden(false);
         }
     }
 
