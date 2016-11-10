@@ -58,7 +58,7 @@ public class EarthquakeCityMap extends PApplet {
 
         quakeMarkers = ParseFeed.parseEarthquake(this, earthquakesURL).stream()
                                 .peek(f -> addCountryParameter(f, countryMarkers))
-                                .map(f -> createMarker(f))
+                                .map(this::createMarker)
                                 .collect(toList());
 
         map.addMarkers(quakeMarkers);
@@ -68,7 +68,7 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private EarthquakeMarker createMarker(PointFeature f) {
-        return isOnLand(f) ? new main.module5.LandQuakeMarker(f) : new OceanQuakeMarker(f);
+        return isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f);
     }
 
     //adds country parameter to PointFeatures located on land
@@ -92,9 +92,11 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private Map<String, Long> printQuakes(List<Marker> markers) {
-        return markers.stream()
-                      .map(this::getQuakes)
-                      .collect(groupingBy(identity(), counting()));
+        Map<String, Long> print;
+        print = markers.stream()
+                       .map(this::getQuakes)
+                       .collect(groupingBy(identity(), counting()));
+        return print;
     }
 
     private String getQuakes(Marker mk) {
@@ -126,8 +128,8 @@ public class EarthquakeCityMap extends PApplet {
         markers.stream()
                .filter(marker -> marker.isInside(map, mouseX, mouseY))
                .forEach(marker -> {
-                   lastSelected = (CommonMarker) marker;
                    marker.setSelected(true);
+                   lastSelected = (CommonMarker) marker;
                });
     }
 
@@ -139,9 +141,68 @@ public class EarthquakeCityMap extends PApplet {
      */
     @Override
     public void mouseClicked() {
-        // TODO: Implement this method
-        // Hint: You probably want a helper method or two to keep this code
-        // from getting too long/disorganized
+        if (lastClicked != null) {
+            lastClicked.setClicked(false);
+            lastClicked = null;
+        }
+
+        selectMarkerIfClicked(quakeMarkers);
+        selectMarkerIfClicked(cityMarkers);
+
+        if (lastClicked instanceof EarthquakeMarker) {
+            hideCities(quakeMarkers);
+            hideCities(cityMarkers);
+        } else if (lastClicked instanceof CityMarker) {
+            hideQuakes(quakeMarkers);
+            hideQuakes(cityMarkers);
+        }
+    }
+
+    private void hideQuakes(List<Marker> markers) {
+        Location lastClickedLocation = lastClicked.getLocation();
+        for (Marker marker : markers) {
+            marker.setHidden(true);
+            if (marker instanceof EarthquakeMarker) {
+                EarthquakeMarker mk = ((EarthquakeMarker) marker);
+                if (mk.getDistanceTo(lastClickedLocation) < mk.threatCircle()) {
+                    marker.setHidden(false);
+                }
+            }
+        }
+        lastClicked.setHidden(false);
+        if (lastClicked == null) {
+            unhideMarkers();
+        }
+    }
+
+    private void hideCities(List<Marker> markers) {
+        Location lastClickedLocation = lastClicked.getLocation();
+        double lastClickedThreat = ((EarthquakeMarker) lastClicked).threatCircle();
+        for (Marker marker : markers) {
+            marker.setHidden(true);
+            if (marker instanceof CityMarker) {
+                if (marker.getDistanceTo(lastClickedLocation) < lastClickedThreat) {
+                    marker.setHidden(false);
+                }
+            }
+        }
+        lastClicked.setHidden(false);
+        if (lastClicked == null) {
+            unhideMarkers();
+        }
+    }
+
+    private void selectMarkerIfClicked(List<Marker> markers) {
+        markers.stream()
+               .filter(marker -> marker.isInside(map, mouseX, mouseY))
+               .forEach(marker -> {
+                   ((CommonMarker) marker).setClicked(true);
+                   lastClicked = (CommonMarker) marker;
+               });
+
+        if (lastClicked == null) {
+            unhideMarkers();
+        }
     }
 
     // loop over and unhide all markers
