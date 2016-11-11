@@ -122,8 +122,10 @@ public class EarthquakeCityMap extends PApplet {
         }
         selectMarkerIfHover(quakeMarkers);
         selectMarkerIfHover(cityMarkers);
+        //loop();
     }
 
+    // If there is a marker selected
     private void selectMarkerIfHover(List<Marker> markers) {
         // Abort if there's already a marker selected
         if (lastSelectedMarker != null) {
@@ -153,59 +155,56 @@ public class EarthquakeCityMap extends PApplet {
             lastClickedMarker = null;
         }
 
-        selectMarkerIfClicked(quakeMarkers);
-        selectMarkerIfClicked(cityMarkers);
+        findLastClickedMarker(quakeMarkers);
+        findLastClickedMarker(cityMarkers);
 
         if (lastClickedMarker != null) {
-            hideQuakes(quakeMarkers);
-            hideQuakes(cityMarkers);
+            hideAllMarkers(quakeMarkers);
+            hideAllMarkers(cityMarkers);
+            unhideMarkersInsideThreatZone();
+        }
+
+        if (lastClickedMarker == null) {
+            unhideAllMarkers(quakeMarkers);
+            unhideAllMarkers(cityMarkers);
         }
     }
 
-    private void hideQuakes(List<Marker> markers) {
-        Location lastClickedLocation = lastClickedMarker.getLocation();
-
-        hideAllMarkers(markers);
-
-        if (lastClickedMarker instanceof CityMarker) {
-            markers.stream()
-                   .filter(mk -> mk instanceof EarthquakeMarker)
-                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
-        } else {
-            markers.stream()
-                   .filter(mk -> mk instanceof CityMarker)
-                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClickedMarker).threatCircle()));
-        }
-        lastClickedMarker.setHidden(false);
+    private void findLastClickedMarker(List<Marker> markers) {
+        markers.stream()
+               .filter(mk -> mk.isInside(map, mouseX, mouseY))
+               .map(mk -> (CommonMarker) mk)
+               .forEach(mk -> {
+                   lastClickedMarker = mk;
+                   lastClickedMarker.setClicked(true);
+               });
     }
 
     private void hideAllMarkers(List<Marker> markers) {
         markers.forEach(mk -> mk.setHidden(true));
     }
 
+    private void unhideMarkersInsideThreatZone() {
+        Location lastClickedLocation = lastClickedMarker.getLocation();
+        if (lastClickedMarker instanceof CityMarker) {
+            quakeMarkers.stream()
+                        .filter(mk -> mk instanceof EarthquakeMarker)
+                        .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
+        } else {
+            cityMarkers.stream()
+                       .filter(mk -> mk instanceof CityMarker)
+                       .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClickedMarker).threatCircle()));
+        }
+        lastClickedMarker.setHidden(false);
+    }
+
     private void setUnhidden(Marker marker, Location location, double threatCircle) {
-        if (marker.getDistanceTo(location) < threatCircle) {
-            marker.setHidden(false);
-        }
+        if (marker.getDistanceTo(location) < threatCircle) marker.setHidden(false);
+
     }
 
-    private void selectMarkerIfClicked(List<Marker> markers) {
-        markers.stream()
-               .filter(marker -> marker.isInside(map, mouseX, mouseY))
-               .forEach(marker -> {
-                   ((CommonMarker) marker).setClicked(true);
-                   lastClickedMarker = (CommonMarker) marker;
-               });
-
-        if (lastClickedMarker == null) {
-            unhideMarkers();
-        }
-    }
-
-    // loop over and unhide all markers
-    private void unhideMarkers() {
-        quakeMarkers.forEach(mk -> mk.setHidden(false));
-        cityMarkers.forEach(mk -> mk.setHidden(false));
+    private void unhideAllMarkers(List<Marker> markers) {
+        markers.forEach(mk -> mk.setHidden(false));
     }
 
     public void draw() {
