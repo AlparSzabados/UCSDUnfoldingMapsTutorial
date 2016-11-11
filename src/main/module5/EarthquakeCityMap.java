@@ -125,12 +125,19 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private void selectMarkerIfHover(List<Marker> markers) {
-        markers.stream()
-               .filter(marker -> marker.isInside(map, mouseX, mouseY))
-               .forEach(marker -> {
-                   marker.setSelected(true);
-                   lastSelectedMarker = (CommonMarker) marker;
-               });
+        // Abort if there's already a marker selected
+        if (lastSelectedMarker != null) {
+            return;
+        }
+
+        for (Marker m : markers) {
+            CommonMarker marker = (CommonMarker) m;
+            if (marker.isInside(map, mouseX, mouseY)) {
+                lastSelectedMarker = marker;
+                marker.setSelected(true);
+                return;
+            }
+        }
     }
 
     /**
