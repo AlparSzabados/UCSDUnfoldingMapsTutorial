@@ -163,11 +163,11 @@ public class EarthquakeCityMap extends PApplet {
         if (lastClicked instanceof CityMarker) {
             markers.stream()
                    .filter(mk -> mk instanceof EarthquakeMarker)
-                   .forEach(mk -> setHidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
+                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
         } else {
             markers.stream()
                    .filter(mk -> mk instanceof CityMarker)
-                   .forEach(mk -> setHidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClicked).threatCircle()));
+                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClicked).threatCircle()));
         }
         lastClicked.setHidden(false);
     }
@@ -176,7 +176,7 @@ public class EarthquakeCityMap extends PApplet {
         markers.forEach(mk -> mk.setHidden(true));
     }
 
-    private void setHidden(Marker marker, Location location, double threatCircle) {
+    private void setUnhidden(Marker marker, Location location, double threatCircle) {
         if (marker.getDistanceTo(location) < threatCircle) {
             marker.setHidden(false);
         }
