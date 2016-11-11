@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.*;
  * Author: UC San Diego Intermediate Software Development MOOC team
  *
  * @author Szabados Alpar
- *         Date: July 17, 2015
+ *         Date: July 17, 2016
  */
 public class EarthquakeCityMap extends PApplet {
 
@@ -108,10 +108,6 @@ public class EarthquakeCityMap extends PApplet {
         return mk instanceof LandQuakeMarker;
     }
 
-    /**
-     * Event handler that gets called automatically when the
-     * mouse moves.
-     */
     @Override
     public void mouseMoved() {
         // clear the last selection
@@ -122,12 +118,10 @@ public class EarthquakeCityMap extends PApplet {
         }
         selectMarkerIfHover(quakeMarkers);
         selectMarkerIfHover(cityMarkers);
-        //loop();
     }
 
-    // If there is a marker selected
+
     private void selectMarkerIfHover(List<Marker> markers) {
-        // Abort if there's already a marker selected
         if (lastSelectedMarker != null) {
             return;
         }
@@ -142,12 +136,6 @@ public class EarthquakeCityMap extends PApplet {
         }
     }
 
-    /**
-     * The event handler for mouse clicks
-     * It will display an earthquake and its threat circle of cities
-     * Or if a city is clicked, it will display all the earthquakes
-     * where the city is in the threat circle
-     */
     @Override
     public void mouseClicked() {
         if (lastClickedMarker != null) {
@@ -200,7 +188,6 @@ public class EarthquakeCityMap extends PApplet {
 
     private void setUnhidden(Marker marker, Location location, double threatCircle) {
         if (marker.getDistanceTo(location) < threatCircle) marker.setHidden(false);
-
     }
 
     private void unhideAllMarkers(List<Marker> markers) {
