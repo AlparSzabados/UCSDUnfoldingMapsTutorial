@@ -41,8 +41,8 @@ public class EarthquakeCityMap extends PApplet {
     private List<Marker> quakeMarkers;
     private List<Marker> countryMarkers;
 
-    private CommonMarker lastSelected;
-    private CommonMarker lastClicked;
+    private CommonMarker lastSelectedMarker;
+    private CommonMarker lastClickedMarker;
 
     public void setup() {
         size(900, 700, OPENGL);
@@ -115,9 +115,9 @@ public class EarthquakeCityMap extends PApplet {
     @Override
     public void mouseMoved() {
         // clear the last selection
-        if (lastSelected != null) {
-            lastSelected.setSelected(false);
-            lastSelected = null;
+        if (lastSelectedMarker != null) {
+            lastSelectedMarker.setSelected(false);
+            lastSelectedMarker = null;
 
         }
         selectMarkerIfHover(quakeMarkers);
@@ -129,7 +129,7 @@ public class EarthquakeCityMap extends PApplet {
                .filter(marker -> marker.isInside(map, mouseX, mouseY))
                .forEach(marker -> {
                    marker.setSelected(true);
-                   lastSelected = (CommonMarker) marker;
+                   lastSelectedMarker = (CommonMarker) marker;
                });
     }
 
@@ -141,35 +141,35 @@ public class EarthquakeCityMap extends PApplet {
      */
     @Override
     public void mouseClicked() {
-        if (lastClicked != null) {
-            lastClicked.setClicked(false);
-            lastClicked = null;
+        if (lastClickedMarker != null) {
+            lastClickedMarker.setClicked(false);
+            lastClickedMarker = null;
         }
 
         selectMarkerIfClicked(quakeMarkers);
         selectMarkerIfClicked(cityMarkers);
 
-        if (lastClicked != null) {
+        if (lastClickedMarker != null) {
             hideQuakes(quakeMarkers);
             hideQuakes(cityMarkers);
         }
     }
 
     private void hideQuakes(List<Marker> markers) {
-        Location lastClickedLocation = lastClicked.getLocation();
+        Location lastClickedLocation = lastClickedMarker.getLocation();
 
         hideAllMarkers(markers);
 
-        if (lastClicked instanceof CityMarker) {
+        if (lastClickedMarker instanceof CityMarker) {
             markers.stream()
                    .filter(mk -> mk instanceof EarthquakeMarker)
                    .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
         } else {
             markers.stream()
                    .filter(mk -> mk instanceof CityMarker)
-                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClicked).threatCircle()));
+                   .forEach(mk -> setUnhidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClickedMarker).threatCircle()));
         }
-        lastClicked.setHidden(false);
+        lastClickedMarker.setHidden(false);
     }
 
     private void hideAllMarkers(List<Marker> markers) {
@@ -187,10 +187,10 @@ public class EarthquakeCityMap extends PApplet {
                .filter(marker -> marker.isInside(map, mouseX, mouseY))
                .forEach(marker -> {
                    ((CommonMarker) marker).setClicked(true);
-                   lastClicked = (CommonMarker) marker;
+                   lastClickedMarker = (CommonMarker) marker;
                });
 
-        if (lastClicked == null) {
+        if (lastClickedMarker == null) {
             unhideMarkers();
         }
     }
