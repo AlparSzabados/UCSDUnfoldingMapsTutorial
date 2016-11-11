@@ -157,21 +157,23 @@ public class EarthquakeCityMap extends PApplet {
 
     private void hideQuakes(List<Marker> markers) {
         Location lastClickedLocation = lastClicked.getLocation();
-        for (Marker marker : markers) {
-            marker.setHidden(true);
-            if (lastClicked instanceof CityMarker) {
-                if (marker instanceof EarthquakeMarker) {
-                    double earthquakeThreat = ((EarthquakeMarker) marker).threatCircle();
-                    setHidden(marker, lastClickedLocation, earthquakeThreat);
-                }
-            } else {
-                if (marker instanceof CityMarker) {
-                    double earthquakeThreat = ((EarthquakeMarker) lastClicked).threatCircle();
-                    setHidden(marker, lastClickedLocation, earthquakeThreat);
-                }
-            }
+
+        hideAllMarkers(markers);
+
+        if (lastClicked instanceof CityMarker) {
+            markers.stream()
+                   .filter(mk -> mk instanceof EarthquakeMarker)
+                   .forEach(mk -> setHidden(mk, lastClickedLocation, ((EarthquakeMarker) mk).threatCircle()));
+        } else {
+            markers.stream()
+                   .filter(mk -> mk instanceof CityMarker)
+                   .forEach(mk -> setHidden(mk, lastClickedLocation, ((EarthquakeMarker) lastClicked).threatCircle()));
         }
         lastClicked.setHidden(false);
+    }
+
+    private void hideAllMarkers(List<Marker> markers) {
+        markers.forEach(mk -> mk.setHidden(true));
     }
 
     private void setHidden(Marker marker, Location location, double threatCircle) {
@@ -195,13 +197,8 @@ public class EarthquakeCityMap extends PApplet {
 
     // loop over and unhide all markers
     private void unhideMarkers() {
-        for (Marker marker : quakeMarkers) {
-            marker.setHidden(false);
-        }
-
-        for (Marker marker : cityMarkers) {
-            marker.setHidden(false);
-        }
+        quakeMarkers.forEach(mk -> mk.setHidden(false));
+        cityMarkers.forEach(mk -> mk.setHidden(false));
     }
 
     public void draw() {
