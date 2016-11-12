@@ -199,8 +199,8 @@ public class EarthquakeCityMap extends PApplet {
     public void draw() {
         background(0);
         map.draw();
-        addKey();
         addLine();
+        addKey();
     }
 
     private void addLine() {
