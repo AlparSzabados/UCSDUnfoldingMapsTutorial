@@ -9,6 +9,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.GeoMapApp;
 import de.fhpotsdam.unfolding.utils.MapUtils;
+import de.fhpotsdam.unfolding.utils.ScreenPosition;
 import main.parsing.ParseFeed;
 import processing.core.PApplet;
 
@@ -52,7 +53,8 @@ public class EarthquakeCityMap extends PApplet {
 
         countryMarkers = MapUtils.createSimpleMarkers(GeoJSONReader.loadData(this, countryFile));
 
-        cityMarkers = GeoJSONReader.loadData(this, cityFile).stream()
+        cityMarkers = GeoJSONReader.loadData(this, cityFile)
+                                   .stream()
                                    .map(CityMarker::new)
                                    .collect(toList());
 
@@ -122,9 +124,7 @@ public class EarthquakeCityMap extends PApplet {
 
 
     private void selectMarkerIfHover(List<Marker> markers) {
-        if (lastSelectedMarker != null) {
-            return;
-        }
+        if (lastSelectedMarker != null) return;
 
         for (Marker m : markers) {
             CommonMarker marker = (CommonMarker) m;
@@ -187,7 +187,9 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private void setUnhidden(Marker marker, Location location, double threatCircle) {
-        if (marker.getDistanceTo(location) < threatCircle) marker.setHidden(false);
+        if (marker.getDistanceTo(location) < threatCircle) {
+            marker.setHidden(false);
+        }
     }
 
     private void unhideAllMarkers(List<Marker> markers) {
@@ -198,7 +200,28 @@ public class EarthquakeCityMap extends PApplet {
         background(0);
         map.draw();
         addKey();
+        addLine();
     }
+
+    private void addLine() {
+        if (lastClickedMarker instanceof CityMarker) {
+            quakeMarkers.stream()
+                        .filter(mk -> mk instanceof OceanQuakeMarker)
+                        .filter(mk -> !mk.isHidden())
+                        .forEach(this::createLineBetweenMarkers);
+        } else if (lastClickedMarker instanceof OceanQuakeMarker) {
+            cityMarkers.stream()
+                       .filter(mk -> !mk.isHidden())
+                       .forEach(this::createLineBetweenMarkers);
+        }
+    }
+
+    private void createLineBetweenMarkers(Marker marker) {
+        ScreenPosition cityLocation = map.getScreenPosition(marker.getLocation());
+        ScreenPosition eqLocation = map.getScreenPosition(lastClickedMarker.getLocation());
+        line(cityLocation.x, cityLocation.y, eqLocation.x, eqLocation.y);
+    }
+
 
     private void addKey() {
         fill(255, 250, 240);
