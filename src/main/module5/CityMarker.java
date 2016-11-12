@@ -20,7 +20,6 @@ public class CityMarker extends CommonMarker {
         super(location);
     }
 
-
     public CityMarker(Feature city) {
         super(((PointFeature) city).getLocation(), city.getProperties());
     }
