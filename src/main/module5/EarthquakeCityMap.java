@@ -199,8 +199,8 @@ public class EarthquakeCityMap extends PApplet {
     public void draw() {
         background(0);
         map.draw();
-        addKey();
         addLine();
+        addKey();
     }
 
     private void addLine() {
@@ -221,7 +221,6 @@ public class EarthquakeCityMap extends PApplet {
         ScreenPosition eqLocation = map.getScreenPosition(lastClickedMarker.getLocation());
         line(cityLocation.x, cityLocation.y, eqLocation.x, eqLocation.y);
     }
-
 
     private void addKey() {
         fill(255, 250, 240);
