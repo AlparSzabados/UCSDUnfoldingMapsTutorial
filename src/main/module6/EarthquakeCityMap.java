@@ -5,6 +5,7 @@ import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.marker.Marker;
+import de.fhpotsdam.unfolding.providers.GeoMapApp;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
@@ -71,7 +72,7 @@ public class EarthquakeCityMap extends PApplet {
             map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
             earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
         } else {
-            map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+            map = new UnfoldingMap(this, 200, 50, 650, 600,  new GeoMapApp.TopologicalGeoMapProvider());
             // IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
             //earthquakesURL = "2.5_week.atom";
         }
@@ -130,7 +131,6 @@ public class EarthquakeCityMap extends PApplet {
         background(0);
         map.draw();
         addKey();
-
     }
 
 
@@ -365,6 +365,6 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main("main.module4.EarthquakeCityMap");
+        PApplet.main("main.module6.EarthquakeCityMap");
     }
 }
