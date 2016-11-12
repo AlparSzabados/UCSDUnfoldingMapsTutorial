@@ -77,7 +77,7 @@ public class EarthquakeCityMap extends PApplet {
     private void addCountryParameter(PointFeature earthquake, List<Marker> country) {
         Location checkLoc = earthquake.getLocation();
         for (Marker mark : country) {
-            if (mark.getClass() == MultiMarker.class) {
+            if (mark instanceof MultiMarker) {
                 for (Marker marker : ((MultiMarker) mark).getMarkers()) {
                     if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
                         earthquake.addProperty("country", mark.getProperty("name"));
@@ -116,8 +116,8 @@ public class EarthquakeCityMap extends PApplet {
         if (lastSelectedMarker != null) {
             lastSelectedMarker.setSelected(false);
             lastSelectedMarker = null;
-
         }
+
         selectMarkerIfHover(quakeMarkers);
         selectMarkerIfHover(cityMarkers);
     }
