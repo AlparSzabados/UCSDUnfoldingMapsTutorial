@@ -17,6 +17,7 @@ import java.util.Map;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static main.earthquakeMap.AddCountryParam.addCountryParameter;
+import static main.earthquakeMap.CityMarker.TRI_SIZE;
 
 /**
  * EarthquakeCityMap
@@ -200,60 +201,91 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private void addLegend() {
-        fill(255, 250, 240);
+        createLegendBase();
+        addTitle();
+        addMarkerAndText();
+        addCirclesAndText();
+    }
 
-        int xbase = 0;
-        int ybase = 0;
+    private void createLegendBase() {
+        int baseColor = color(255, 250, 240);
+        fill(baseColor);
+        rect(0, 0, 150, 250);
+    }
 
-        rect(xbase, ybase, 150, 250);
-
+    private void addTitle() {
         fill(0);
         textAlign(LEFT, CENTER);
         textSize(12);
-        text("Earthquake Key", xbase + 25, ybase + 25);
+        int textX = 25;
+        int textY = 25;
+        text("Earthquake Key", textX, textY);
+    }
 
-        fill(150, 30, 30);
-        int tri_xbase = xbase + 35;
-        int tri_ybase = ybase + 50;
-        triangle(tri_xbase, tri_ybase - CityMarker.TRI_SIZE, tri_xbase - CityMarker.TRI_SIZE,
-                tri_ybase + CityMarker.TRI_SIZE, tri_xbase + CityMarker.TRI_SIZE,
-                tri_ybase + CityMarker.TRI_SIZE);
+    private void addMarkerAndText() {
+        int triSize = TRI_SIZE;
+        int markerX = 35;
+        int triY = 50;
+        int ellipseY = 70;
+        int rectY = 90;
+        int markerSize = 10;
+        int triColor = color(150, 30, 30);
+        int markerColor = color(255, 255, 255);
 
-        fill(0, 0, 0);
+        fill(triColor);
+        triangle(markerX, triY - triSize, markerX - triSize, triY + triSize, markerX + triSize, triY + triSize);
+
+        fill(markerColor);
+        ellipse(markerX, ellipseY, markerSize, markerSize);
+
+        int rectOffset = 5;
+        rect(markerX - rectOffset, rectY - rectOffset, markerSize, markerSize);
+
+        int textX = 50;
+        fill(0);
         textAlign(LEFT, CENTER);
-        text("City Marker", tri_xbase + 15, tri_ybase);
+        text("City Marker", textX, triY);
+        text("Land Quake", textX, ellipseY);
+        text("Ocean Quake", textX, rectY);
+        text("Size ~ Magnitude", 25, 110);
+    }
 
-        text("Land Quake", xbase + 50, ybase + 70);
-        text("Ocean Quake", xbase + 50, ybase + 90);
-        text("Size ~ Magnitude", xbase + 25, ybase + 110);
+    private void addCirclesAndText() {
+        int textX = 50;
+        int ellipseX = 35;
+        int ellipseY = 140;
+        int ellipseSize = 12;
+        int lineX = 35;
+        int lineY = 200;
+        int lineLength = 8;
 
-        fill(255, 255, 255);
-        ellipse(xbase + 35, ybase + 70, 10, 10);
-        rect(xbase + 35 - 5, ybase + 90 - 5, 10, 10);
+        int yellow = color(255, 255, 0);
+        int blue = color(0, 0, 255);
+        int red = color(255, 0, 0);
+        int white = color(255, 255, 255);
 
-        fill(color(255, 255, 0));
-        ellipse(xbase + 35, ybase + 140, 12, 12);
-        fill(color(0, 0, 255));
-        ellipse(xbase + 35, ybase + 160, 12, 12);
-        fill(color(255, 0, 0));
-        ellipse(xbase + 35, ybase + 180, 12, 12);
+        fill(yellow);
+        ellipse(ellipseX, ellipseY, ellipseSize, ellipseSize);
 
-        textAlign(LEFT, CENTER);
-        fill(0, 0, 0);
-        text("Shallow", xbase + 50, ybase + 140);
-        text("Intermediate", xbase + 50, ybase + 160);
-        text("Deep", xbase + 50, ybase + 180);
+        fill(blue);
+        ellipse(ellipseX, ellipseY + 20, ellipseSize, ellipseSize);
 
-        text("Past hour", xbase + 50, ybase + 200);
+        fill(red);
+        ellipse(ellipseX, ellipseY + 40, ellipseSize, ellipseSize);
 
-        fill(255, 255, 255);
-        int centerx = xbase + 35;
-        int centery = ybase + 200;
-        ellipse(centerx, centery, 12, 12);
+        fill(white);
+        ellipse(ellipseX, ellipseY + 60, ellipseSize, ellipseSize);
 
         strokeWeight(2);
-        line(centerx - 8, centery - 8, centerx + 8, centery + 8);
-        line(centerx - 8, centery + 8, centerx + 8, centery - 8);
+        line(lineX - lineLength, lineY - lineLength, lineX + lineLength, lineY + lineLength);
+        line(lineX - lineLength, lineY + lineLength, lineX + lineLength, lineY - lineLength);
+
+        textAlign(LEFT, CENTER);
+        fill(0, 0, 0);
+        text("Shallow", textX, ellipseY);
+        text("Intermediate", textX, ellipseY + 20);
+        text("Deep", textX, ellipseY + 40);
+        text("Past hour", textX, ellipseY + 60);
     }
 
     public static void main(String[] args) {
