@@ -25,7 +25,7 @@ import static java.util.stream.Collectors.*;
  * Author: UC San Diego Intermediate Software Development MOOC team
  *
  * @author Szabados Alpar
- *         Date: July 17, 2016
+ *         Date: November 4, 2016
  */
 public class EarthquakeCityMap extends PApplet {
 

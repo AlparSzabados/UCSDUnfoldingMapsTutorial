@@ -12,7 +12,7 @@ import static java.lang.Float.parseFloat;
  * Implements a visual marker for earthquakes on an earthquake map
  *
  * @author UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
+ * @author Szabados Alpar
  */
 public abstract class EarthquakeMarker extends SimplePointMarker {
 
