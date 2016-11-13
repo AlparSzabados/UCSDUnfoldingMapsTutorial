@@ -8,6 +8,14 @@ import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import processing.core.PApplet;
 
+/**
+ * EarthquakeCityMap
+ * An application with an interactive map displaying earthquake data.
+ * Author: UC San Diego Intermediate Software Development MOOC team
+ *
+ * @author Szabados Alpar
+ *         Date: October 24, 2016
+ */
 public class HelloWorld extends PApplet {
     private static final long serialVersionUID = 1L;
 
