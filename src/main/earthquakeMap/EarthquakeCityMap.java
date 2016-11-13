@@ -177,7 +177,7 @@ public class EarthquakeCityMap extends PApplet {
         background(220, 220, 220);
         map.draw();
         addLine();
-        addKey();
+        addLegend();
     }
 
     private void addLine() {
@@ -199,7 +199,7 @@ public class EarthquakeCityMap extends PApplet {
         line(cityLocation.x, cityLocation.y, eqLocation.x, eqLocation.y);
     }
 
-    private void addKey() {
+    private void addLegend() {
         fill(255, 250, 240);
 
         int xbase = 0;
