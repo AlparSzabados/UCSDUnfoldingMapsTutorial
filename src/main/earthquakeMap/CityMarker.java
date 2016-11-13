@@ -1,4 +1,4 @@
-package main.module6;
+package main.earthquakeMap;
 
 import de.fhpotsdam.unfolding.data.Feature;
 import de.fhpotsdam.unfolding.data.PointFeature;

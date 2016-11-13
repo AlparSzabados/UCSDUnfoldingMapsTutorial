@@ -1,4 +1,4 @@
-package main.module6;
+package main.earthquakeMap;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -6,7 +6,6 @@ import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.providers.GeoMapApp;
-import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import main.parsing.ParseFeed;
@@ -365,6 +364,6 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     public static void main(String[] args) {
-        PApplet.main("main.module6.EarthquakeCityMap");
+        PApplet.main("main.earthquakeMap.EarthquakeCityMap");
     }
 }
