@@ -48,8 +48,9 @@ public class EarthquakeCityMap extends PApplet {
     public void setup() {
         size(900, 700, OPENGL);
 
-        map = new UnfoldingMap(this, 200, 50, 650, 600, new GeoMapApp.TopologicalGeoMapProvider());
+        map = new UnfoldingMap(this, 0, 0, 900, 700, new GeoMapApp.TopologicalGeoMapProvider());
         MapUtils.createDefaultEventDispatcher(this, map);
+        map.zoomLevel(1);
 
         countryMarkers = MapUtils.createSimpleMarkers(GeoJSONReader.loadData(this, countryFile));
 
@@ -107,7 +108,7 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     private boolean isLandMarker(Marker mk) {
-        return mk instanceof main.module5.LandQuakeMarker;
+        return mk instanceof LandQuakeMarker;
     }
 
     @Override
@@ -197,7 +198,7 @@ public class EarthquakeCityMap extends PApplet {
     }
 
     public void draw() {
-        background(0);
+        background(220, 220, 220);
         map.draw();
         addLine();
         addKey();
@@ -225,8 +226,8 @@ public class EarthquakeCityMap extends PApplet {
     private void addKey() {
         fill(255, 250, 240);
 
-        int xbase = 25;
-        int ybase = 50;
+        int xbase = 0;
+        int ybase = 0;
 
         rect(xbase, ybase, 150, 250);
 
