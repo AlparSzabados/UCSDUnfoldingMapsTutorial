@@ -238,8 +238,8 @@ public class EarthquakeCityMap extends PApplet {
         fill(150, 30, 30);
         int tri_xbase = xbase + 35;
         int tri_ybase = ybase + 50;
-        triangle(tri_xbase, tri_ybase - main.module5.CityMarker.TRI_SIZE, tri_xbase - main.module5.CityMarker.TRI_SIZE,
-                tri_ybase + main.module5.CityMarker.TRI_SIZE, tri_xbase + main.module5.CityMarker.TRI_SIZE,
+        triangle(tri_xbase, tri_ybase - CityMarker.TRI_SIZE, tri_xbase - CityMarker.TRI_SIZE,
+                tri_ybase + CityMarker.TRI_SIZE, tri_xbase + CityMarker.TRI_SIZE,
                 tri_ybase + CityMarker.TRI_SIZE);
 
         fill(0, 0, 0);
@@ -251,10 +251,7 @@ public class EarthquakeCityMap extends PApplet {
         text("Size ~ Magnitude", xbase + 25, ybase + 110);
 
         fill(255, 255, 255);
-        ellipse(xbase + 35,
-                ybase + 70,
-                10,
-                10);
+        ellipse(xbase + 35, ybase + 70, 10, 10);
         rect(xbase + 35 - 5, ybase + 90 - 5, 10, 10);
 
         fill(color(255, 255, 0));
