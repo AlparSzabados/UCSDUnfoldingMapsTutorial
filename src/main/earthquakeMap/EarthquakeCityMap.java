@@ -4,9 +4,7 @@ import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.geo.Location;
-import de.fhpotsdam.unfolding.marker.AbstractShapeMarker;
 import de.fhpotsdam.unfolding.marker.Marker;
-import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.GeoMapApp;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
@@ -18,6 +16,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
+import static main.earthquakeMap.AddCountryParam.addCountryParameter;
 
 /**
  * EarthquakeCityMap
@@ -74,41 +73,19 @@ public class EarthquakeCityMap extends PApplet {
         return isOnLand(f) ? new LandQuakeMarker(f) : new OceanQuakeMarker(f);
     }
 
-    //adds country parameter to PointFeatures located on land
-    private void addCountryParameter(PointFeature earthquake, List<Marker> country) {
-        Location checkLoc = earthquake.getLocation();
-        for (Marker mark : country) {
-            if (mark instanceof MultiMarker) {
-                for (Marker marker : ((MultiMarker) mark).getMarkers()) {
-                    if (((AbstractShapeMarker) marker).isInsideByLocation(checkLoc)) {
-                        earthquake.addProperty("country", mark.getProperty("name"));
-                    }
-                }
-            } else if (((AbstractShapeMarker) mark).isInsideByLocation(checkLoc)) {
-                earthquake.addProperty("country", mark.getProperty("name"));
-            }
-        }
-    }
-
     private boolean isOnLand(PointFeature earthquake) {
         return earthquake.getProperty("country") != null;
     }
 
     private Map<String, Long> printQuakes(List<Marker> markers) {
-        Map<String, Long> print;
-        print = markers.stream()
-                       .map(this::getQuakes)
-                       .collect(groupingBy(identity(), counting()));
-        return print;
+        return markers.stream()
+                      .map(this::getQuakes)
+                      .collect(groupingBy(identity(), counting()));
     }
 
-    private String getQuakes(Marker mk) {
-        return isLandMarker(mk) ? mk.getStringProperty("country")
-                                : "OCEAN QUAKE";
-    }
-
-    private boolean isLandMarker(Marker mk) {
-        return mk instanceof LandQuakeMarker;
+    private String getQuakes(Marker marker) {
+        return marker instanceof LandQuakeMarker ? marker.getStringProperty("country")
+                                                 : "OCEAN QUAKE";
     }
 
     @Override
@@ -122,7 +99,6 @@ public class EarthquakeCityMap extends PApplet {
         selectMarkerIfHover(quakeMarkers);
         selectMarkerIfHover(cityMarkers);
     }
-
 
     private void selectMarkerIfHover(List<Marker> markers) {
         if (lastSelectedMarker != null) return;
